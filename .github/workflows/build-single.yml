@@ -43,6 +43,22 @@ jobs:
 
             sudo chown -R $USER:$USER .
 
+        - name: Install SSH key for storage
+          uses: shimataro/ssh-key-action@v2
+          with:
+
+            key: ${{ secrets.KEY_TORRENTS }}
+            known_hosts: ${{ secrets.KNOWN_HOSTS_UPLOAD }}
+            if_key_exists: replace
+
+        - name: Mount deploy dir under random temporally directory
+          run: |
+
+            TMPDIR=$(mktemp -d)
+            echo "::set-env name=TMPDIR::$TMPDIR"
+            sudo apt-get -y -qq install sshfs
+            sudo sshfs -o allow_other,default_permissions igorp@users.armbian.com:/ext/upload/image ${TMPDIR}
+
         - name: Checkout Armbian build script
 
           uses: actions/checkout@v2
@@ -85,6 +101,11 @@ jobs:
 
             cd build
            
+            # mount remote deployment directory so we store files there
+            sudo mkdir -p output
+            sudo rm -rf output/images
+            sudo ln -s ${TMPDIR} output/images
+
             [[ "${REPOSITORY}" == "yes" ]] && REPOSITORY_INSTALL="u-boot,kernel,armbian-config,armbian-zsh,armbian-firmware"
             [[ ! -f .ignore_changes ]] && sudo touch .ignore_changes
             ./compile.sh KERNEL_ONLY="yes" BOARD="bananapi" BRANCH="current" KERNEL_CONFIGURE="no" USE_TORRENT="yes" REPOSITORY_INSTALL="kernel" 'prepare_host'
@@ -153,28 +174,10 @@ jobs:
             git commit -m "Bump stable version" -m "" -m "Adding following kernels:" -m "$(find output/debs/ -type f -name "linux-image*.deb" -printf "%f\n" | sort)"
             git push
 
-        - name: Install SSH key for storage
-          uses: shimataro/ssh-key-action@v2
-          with:
-
-            key: ${{ secrets.KEY_TORRENTS }}
-            known_hosts: ${{ secrets.KNOWN_HOSTS_UPLOAD }}
-            if_key_exists: replace
-
-        - name: Deploy images to server
-          if: ${{ success() }}
-          run: |
-
-            sudo apt-get -y -qq install lftp
-            sudo chown -R $USER:$USER $(pwd)/build/output/images/
-            lftp -u upload, -e "set net:timeout 4;set net:max-retries 6;mirror --Remove-source-files -R --no-empty-dirs --parallel=8 --no-perms $(pwd)/build/output/images/ images/ ;bye" sftp://users.armbian.com
-
-        - name: Deploy packages to server
-          if: ${{ success() && github.event.inputs.repository != 'yes' }}
+        - name: Unmount remote storage
 
           run: |
-
-            lftp -u upload, -e "set net:timeout 4;set net:max-retries 6;mirror --Remove-source-files -R --no-empty-dirs --parallel=8 --no-perms $(pwd)/build/output/debs/ debs/ ;bye" sftp://users.armbian.com
+            sudo umount ${TMPDIR}
 
     repository:
 
