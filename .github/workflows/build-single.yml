@@ -57,7 +57,7 @@ jobs:
             TMPDIR=$(mktemp -d)
             echo "tmp_dir=$TMPDIR" >> $GITHUB_ENV
             sudo apt-get -y -qq install sshfs
-            echo "sudo sshfs -o allow_other,default_permissions igorp@users.armbian.com:/ext/upload/image ${TMPDIR}"
+            echo "sudo sshfs -o allow_other,default_permissions upload@users.armbian.com:/ext/upload/image ${TMPDIR}"
 
         - name: Checkout Armbian build script
 
