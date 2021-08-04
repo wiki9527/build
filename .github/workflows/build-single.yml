@@ -56,7 +56,6 @@ jobs:
 
             TMPDIR=$(mktemp -d)
             echo "tmp_dir=$TMPDIR" >> $GITHUB_ENV
-            echo "::set-env name=TMPDIR::$TMPDIR"
             sudo apt-get -y -qq install sshfs
             sudo sshfs -o allow_other,default_permissions igorp@users.armbian.com:/ext/upload/image ${TMPDIR}
 
