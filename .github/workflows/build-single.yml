@@ -54,7 +54,8 @@ jobs:
         - name: Mount deploy dir under random temporally directory
           run: |
 
-            export TMPDIR=$(mktemp -d)
+            TMPDIR=$(mktemp -d)
+            echo "tmp_dir=$TMPDIR" >> $GITHUB_ENV
             echo "::set-env name=TMPDIR::$TMPDIR"
             sudo apt-get -y -qq install sshfs
             sudo sshfs -o allow_other,default_permissions igorp@users.armbian.com:/ext/upload/image ${TMPDIR}
@@ -104,7 +105,7 @@ jobs:
             # mount remote deployment directory so we store files there
             sudo mkdir -p output
             sudo rm -rf output/images
-            sudo ln -s ${TMPDIR} output/images
+            sudo ln -s "${{ env.tmp_dir }}" output/images
 
             [[ "${REPOSITORY}" == "yes" ]] && REPOSITORY_INSTALL="u-boot,kernel,armbian-config,armbian-zsh,armbian-firmware"
             [[ ! -f .ignore_changes ]] && sudo touch .ignore_changes
@@ -177,5 +178,5 @@ jobs:
         - name: Unmount remote storage
 
           run: |
-            sudo umount ${TMPDIR}
+            echo "sudo umount ${{ env.tmp_dir }}"
 
