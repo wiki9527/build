@@ -54,7 +54,7 @@ jobs:
         - name: Mount deploy dir under random temporally directory
           run: |
 
-            TMPDIR=$(mktemp -d)
+            export TMPDIR=$(mktemp -d)
             echo "::set-env name=TMPDIR::$TMPDIR"
             sudo apt-get -y -qq install sshfs
             sudo sshfs -o allow_other,default_permissions igorp@users.armbian.com:/ext/upload/image ${TMPDIR}
