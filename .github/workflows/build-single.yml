@@ -91,7 +91,7 @@ jobs:
             git-commit-gpgsign: true
 
 
-        - name: Build beta images
+        - name: Build selected image(s) 
           env:
 
             GPG_PASS:        ${{ secrets.GPG_PASSPHRASE1 }}
