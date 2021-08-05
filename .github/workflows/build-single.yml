@@ -41,7 +41,7 @@ jobs:
                 sleep 10
             done
 
-            find . -not -path "*cache/toolchain/*" -not -path "*cache/rootfs/*" -type f -exec sudo chown $USER {} \;
+            find . -not -path "*cache/toolchain/*" -not -path "*cache/rootfs/*" -not -path "*cache/.gpg/*" -type f -exec sudo chown $USER {} \;
 
         - name: Install SSH key for storage
           uses: shimataro/ssh-key-action@v2
@@ -104,7 +104,7 @@ jobs:
            
             # mount remote deployment directory so we store files there
             sudo mkdir -p output            
-            sudo ln -s "${{ env.tmp_dir }}" output/images
+            sudo ln -sf "${{ env.tmp_dir }}" output/images
 
             [[ "${REPOSITORY}" == "yes" ]] && REPOSITORY_INSTALL="u-boot,kernel,armbian-config,armbian-zsh,armbian-firmware"
             [[ ! -f .ignore_changes ]] && sudo touch .ignore_changes
