@@ -103,8 +103,7 @@ jobs:
             cd build
            
             # mount remote deployment directory so we store files there
-            sudo mkdir -p output
-            sudo rm -rf output/images
+            sudo mkdir -p output            
             sudo ln -s "${{ env.tmp_dir }}" output/images
 
             [[ "${REPOSITORY}" == "yes" ]] && REPOSITORY_INSTALL="u-boot,kernel,armbian-config,armbian-zsh,armbian-firmware"
