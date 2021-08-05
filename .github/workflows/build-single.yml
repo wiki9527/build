@@ -41,7 +41,7 @@ jobs:
                 sleep 10
             done
 
-            find . -not -path "*cache/toolchain/*" -not -path "*cache/rootfs/*" -not -path "*cache/.gpg/*" -type f -exec sudo chown $USER {} \;
+            #find . -not -path "*cache/toolchain/*" -not -path "*cache/rootfs/*" -not -path "*cache/.gpg/*" -type f -exec sudo chown $USER {} \;
 
         - name: Install SSH key for storage
           uses: shimataro/ssh-key-action@v2
